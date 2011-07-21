@@ -1,0 +1,14 @@
+== libmdb-ruby ==
+
+Requires libmdb(tools) and Nice-FFI, e.g:
+    sudo apt-get install libmdbtools && sudo gem install nice-ffi
+
+Example usage:
+    require 'mdb'
+    require 'csv'
+    
+    db = MDB::DB.open 'personnel.mdb'
+    table = db.table 'Employees'
+    table.rows.each do |row|
+      puts CSV::generate_line row
+    end
