@@ -12,3 +12,7 @@ Example usage:
     table.rows.each do |row|
       puts CSV::generate_line row
     end
+    
+    table.find('FirstName'=>'John', 'LastName'=>'Smith').each do |row|
+      puts row['EmployeeID']
+    end

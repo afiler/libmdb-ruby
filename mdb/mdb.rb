@@ -34,6 +34,14 @@ module MDB
       end
     end
     
+    def column_names
+      @column_names ||= columns.map { |c| c.name.to_s }
+    end
+  
+    def column_indexes
+      @column_indexes ||= Hash[column_names.each_with_index.map { |val, index| [val, index] }]
+    end
+    
     def rewind
       LibMDB::rewind_table self
     end
@@ -49,9 +57,35 @@ module MDB
       return self.to_enum(:rows) unless block_given?
       rewind
       while row = fetch_row
-        yield row
+        yield Row.new(row, self)
       end
       rewind
+    end
+    
+    def find(hash)
+      return self.to_enum(:find, hash) unless block_given?
+      rows.each do |row|
+        yield row if row.match? hash
+      end
+    end
+  end
+  
+  class Row < Array
+    def initialize(row, table)
+      @table = table
+      replace row
+    end
+    
+    def [](key)
+      key = @table.column_indexes[key] unless key.is_a? Fixnum
+      super key
+    end
+    
+    def match?(hash)
+      hash.each do |k, v|
+        return false unless self[k] == v
+      end
+      true
     end
   end
 end
